@@ -1,34 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:reader_pro/getStarted/getStarted.dart';
+import 'package:reader_pro/mainScreen/mainPage.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final SharedPreferences pref = await SharedPreferences.getInstance();
+  bool isViewed = pref.getBool('isGetStarted') ?? false;
+  runApp(MyApp(isViewed: isViewed));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isViewed;
+  const MyApp({super.key, required this.isViewed});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Reader Pro',
-          style: TextStyle(
-              color: Colors.black, fontSize: 30, fontWeight: FontWeight.bold),
-        ),
-      ),
+      home: isViewed ? MainPage() : Getstarted(),
     );
   }
 }
