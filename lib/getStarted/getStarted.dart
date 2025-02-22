@@ -7,7 +7,6 @@ import 'package:reader_pro/getStarted/pages/page3.dart';
 import 'package:reader_pro/mainScreen/mainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:reader_pro/utils/colors.dart';
 
 class Getstarted extends StatefulWidget {
   const Getstarted({super.key});
@@ -63,7 +62,7 @@ class _GetstartedState extends State<Getstarted> {
                       SmoothPageIndicator(
                         controller: _controller,
                         count: 3,
-                        effect: WormEffect(),
+                        effect: JumpingDotEffect(),
                       ),
                       const SizedBox(height: 50),
                       //Skip Text
@@ -73,7 +72,10 @@ class _GetstartedState extends State<Getstarted> {
                               onTap: () {
                                 _controller.jumpToPage(2);
                               },
-                              child: Text("Skip"),
+                              child: Text(
+                                "Skip",
+                                style: TextStyle(color: Colors.grey),
+                              ),
                             )
                           : Text(""),
                       const SizedBox(height: 10),
