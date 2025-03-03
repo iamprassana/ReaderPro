@@ -92,7 +92,11 @@ class _GetstartedState extends State<Getstarted> {
                                   ),
                                 );
                               },
-                              child: Text("Let's Read"))
+                              child: Text(
+                                "Let's Read",
+                                style: TextStyle(fontSize: 28),
+                              ),
+                            )
                           : Text("")
                     ],
                   ),
