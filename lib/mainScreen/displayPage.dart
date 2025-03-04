@@ -28,7 +28,8 @@ class _DisplaypageState extends State<Displaypage> {
         backgroundColor: AppColors.PrimaryColor1,
       ),
       backgroundColor: AppColors.PrimaryColor2,
-      body: Text(widget.content),
+      body: Text(widget
+          .content), //Change the functionalities to make it good for reading. Scrollable...
     );
   }
 }
