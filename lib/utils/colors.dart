@@ -8,4 +8,6 @@ class AppColors {
   //Button/Text Colors
   static const SecondaryColor1 = Color(0xFF798645);
   static const SecondaryColor2 = Color(0xFF09122C);
+
+  // static var AppColor1= Color();
 }

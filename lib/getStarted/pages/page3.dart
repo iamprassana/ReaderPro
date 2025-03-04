@@ -106,7 +106,7 @@ class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
                             fontSize: 30,
                             color: AppColors.SecondaryColor2,
                           ),
-                          speed: const Duration(milliseconds: 60),
+                          speed: const Duration(milliseconds: 80),
                         ),
                       ],
                       totalRepeatCount: 1,

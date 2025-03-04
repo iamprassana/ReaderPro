@@ -81,7 +81,7 @@ class _HomepageState extends State<MainPage> {
       try {
         //Have a 2 second time delay
         await Future.delayed(
-          Duration(seconds: 2),
+          Duration(seconds: 1),
         );
 
         //Extracts the contents of the pdf
@@ -119,11 +119,17 @@ class _HomepageState extends State<MainPage> {
           content: const Text("Add a File"),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.SecondaryColor2),
+              ),
               onPressed: () => Navigator.pop(dialogContext),
             ),
             TextButton(
-              child: const Text('Choose From Device'),
+              child: const Text(
+                'Choose From Device',
+                style: TextStyle(color: AppColors.SecondaryColor2),
+              ),
               onPressed: () async {
                 Navigator.pop(dialogContext);
                 pickFile(outerContext);
