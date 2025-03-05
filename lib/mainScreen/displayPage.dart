@@ -23,6 +23,46 @@ class _DisplaypageState extends State<Displaypage> {
     });
   }
 
+  List<TextSpan> parseBionicText(String input) {
+    final regex = RegExp(r'\*\*(.*?)\*\*'); // Matches **bold text**
+
+    List<TextSpan> spans = [];
+    int currentIndex = 0;
+
+    for (final match in regex.allMatches(input)) {
+      // Regular text before bold part
+      if (match.start > currentIndex) {
+        spans.add(TextSpan(
+          text: input.substring(currentIndex, match.start),
+          style: const TextStyle(fontFamily: 'Poppins', fontSize: 15),
+        ));
+      }
+
+      // Bold text inside ** **
+      spans.add(TextSpan(
+        text: match.group(1),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins',
+          fontSize: 20,
+        ),
+      ));
+
+      // Move to the next part
+      currentIndex = match.end;
+    }
+
+    // Regular text after the last bold section
+    if (currentIndex < input.length) {
+      spans.add(TextSpan(
+        text: input.substring(currentIndex),
+        style: const TextStyle(fontFamily: 'Poppins', fontSize: 20),
+      ));
+    }
+
+    return spans;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +72,6 @@ class _DisplaypageState extends State<Displaypage> {
           opacity: isClicked ? 1.0 : 0.0,
           curve: Curves.easeOut,
           duration: Duration(milliseconds: 1000),
-          // height: isClicked ? kToolbarHeight * 3 : 0.0,
           child: AppBar(
             title: Text(
               widget.fileName,
@@ -44,7 +83,6 @@ class _DisplaypageState extends State<Displaypage> {
           ),
         ),
       ),
-      //Display no app bar
       backgroundColor: AppColors.PrimaryColor2,
       body: GestureDetector(
         onTap: () {
@@ -58,21 +96,25 @@ class _DisplaypageState extends State<Displaypage> {
           child: Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(20),
             child: SingleChildScrollView(
               physics: BouncingScrollPhysics(
                   decelerationRate: ScrollDecelerationRate.normal),
-              padding: EdgeInsets.all(15),
               scrollDirection: Axis.vertical,
-              child: Expanded(
-                child: Text(
-                  widget.content,
-                  style: TextStyle(fontSize: 15, fontFamily: 'Poppins'),
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                    fontSize: 20,
+                  ),
+                  children: parseBionicText(widget.content),
                 ),
               ),
             ),
           ),
         ),
-      ), //Change the functionalities to make it good for reading. Scrollable...
+      ),
     );
   }
 }

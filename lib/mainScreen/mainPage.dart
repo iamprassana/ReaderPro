@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:reader_pro/gemini/gemini.dart';
 import 'package:reader_pro/mainScreen/displayPage.dart';
 import 'package:reader_pro/mainScreen/homePage.dart';
 import 'package:reader_pro/mainScreen/library.dart';
@@ -18,6 +19,7 @@ class MainPage extends StatefulWidget {
 class _HomepageState extends State<MainPage> {
   int _selectedIndex = 0;
   Extractor extractor = Extractor();
+  final gemini = Gemini();
   final List<Widget> pages = [
     Homepage(),
     Library(),
@@ -79,30 +81,24 @@ class _HomepageState extends State<MainPage> {
       showLoadingDialog(context);
 
       try {
-        //Have a 2 second time delay
-        await Future.delayed(
-          Duration(seconds: 1),
-        );
-
         //Extracts the contents of the pdf
         String? content = await extractor.extractPDF(filePath);
 
+        String bionicFormat = await gemini.generator(content!);
         if (!mounted) return;
         //Close Laoding
-        Navigator.pop(context);
+        Navigator.pop(this.context);
 
-        if (content != null) {
-          //Navigate to display the pdf content
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Displaypage(
-                fileName: fileName,
-                content: content,
-              ),
+        //Navigate to display the pdf content
+        Navigator.push(
+          this.context,
+          MaterialPageRoute(
+            builder: (context) => Displaypage(
+              fileName: fileName,
+              content: bionicFormat,
             ),
-          );
-        }
+          ),
+        );
       } catch (e) {
         if (mounted) Navigator.pop(context);
         print("Error extracting file: $e");
@@ -115,7 +111,7 @@ class _HomepageState extends State<MainPage> {
       context: outerContext,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Files'),
+          title: const Text('File Opener'),
           content: const Text("Add a File"),
           actions: <Widget>[
             TextButton(
