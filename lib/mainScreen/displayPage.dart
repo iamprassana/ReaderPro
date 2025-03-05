@@ -24,7 +24,7 @@ class _DisplaypageState extends State<Displaypage> {
   }
 
   List<TextSpan> parseBionicText(String input) {
-    final regex = RegExp(r'\*\*(.*?)\*\*'); // Matches **bold text**
+    final regex = RegExp(r'\*\*(.+?)\*\*');
 
     List<TextSpan> spans = [];
     int currentIndex = 0;
@@ -34,7 +34,7 @@ class _DisplaypageState extends State<Displaypage> {
       if (match.start > currentIndex) {
         spans.add(TextSpan(
           text: input.substring(currentIndex, match.start),
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 15),
+          style: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
         ));
       }
 
@@ -44,7 +44,7 @@ class _DisplaypageState extends State<Displaypage> {
         style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontFamily: 'Poppins',
-          fontSize: 20,
+          fontSize: 17,
         ),
       ));
 
@@ -56,7 +56,7 @@ class _DisplaypageState extends State<Displaypage> {
     if (currentIndex < input.length) {
       spans.add(TextSpan(
         text: input.substring(currentIndex),
-        style: const TextStyle(fontFamily: 'Poppins', fontSize: 20),
+        style: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
       ));
     }
 
@@ -106,7 +106,7 @@ class _DisplaypageState extends State<Displaypage> {
                   style: const TextStyle(
                     color: Colors.black,
                     fontFamily: 'Poppins',
-                    fontSize: 20,
+                    fontSize: 17,
                   ),
                   children: parseBionicText(widget.content),
                 ),
