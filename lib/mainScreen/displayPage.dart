@@ -99,7 +99,8 @@ class _DisplaypageState extends State<Displaypage> {
             padding: EdgeInsets.all(20),
             child: SingleChildScrollView(
               physics: BouncingScrollPhysics(
-                  decelerationRate: ScrollDecelerationRate.normal),
+                decelerationRate: ScrollDecelerationRate.normal,
+              ),
               scrollDirection: Axis.vertical,
               child: RichText(
                 text: TextSpan(

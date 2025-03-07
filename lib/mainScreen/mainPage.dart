@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // for compute()
 import 'package:reader_pro/gemini/gemini.dart';
 import 'package:reader_pro/mainScreen/displayPage.dart';
 import 'package:reader_pro/mainScreen/homePage.dart';
@@ -19,7 +20,7 @@ class MainPage extends StatefulWidget {
 class _HomepageState extends State<MainPage> {
   int _selectedIndex = 0;
   Extractor extractor = Extractor();
-  final gemini = Gemini();
+
   final List<Widget> pages = [
     Homepage(),
     Library(),
@@ -35,7 +36,7 @@ class _HomepageState extends State<MainPage> {
   void showLoadingDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (context) {
         return Center(
           child: AlertDialog(
@@ -55,6 +56,7 @@ class _HomepageState extends State<MainPage> {
                   const Text(
                     "Please Wait While We Load The Content",
                     style: TextStyle(color: AppColors.SecondaryColor2),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -65,7 +67,7 @@ class _HomepageState extends State<MainPage> {
     );
   }
 
-  void pickFile(BuildContext context) async {
+  Future<void> pickFile(BuildContext context) async {
     FilePickerResult? fp = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'txt'],
@@ -81,17 +83,21 @@ class _HomepageState extends State<MainPage> {
       showLoadingDialog(context);
 
       try {
-        //Extracts the contents of the pdf
-        String? content = await extractor.extractPDF(filePath);
+        // Extract content from PDF
+        String? content = await compute(extractPDFContent, filePath);
+        if (content == null || content.isEmpty) {
+          throw Exception("Failed to extract content from the file.");
+        }
 
-        String bionicFormat = await gemini.generator(content!);
-        if (!mounted) return;
-        //Close Laoding
-        Navigator.pop(this.context);
+        // Convert to Bionic format - heavy processing isolated in `compute`
+        final geminiString = await compute(geminiConversion, content);
+        final bionicFormat = await compute(convertToBionic, geminiString);
+        if (!context.mounted) return;
+        Navigator.pop(context); // Close loading dialog
 
-        //Navigate to display the pdf content
+        // Navigate to display page
         Navigator.push(
-          this.context,
+          context,
           MaterialPageRoute(
             builder: (context) => Displaypage(
               fileName: fileName,
@@ -100,8 +106,11 @@ class _HomepageState extends State<MainPage> {
           ),
         );
       } catch (e) {
-        if (mounted) Navigator.pop(context);
-        print("Error extracting file: $e");
+        if (context.mounted) Navigator.pop(context);
+        print("Error extracting or processing file: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to process file: $e")),
+        );
       }
     }
   }
@@ -115,17 +124,13 @@ class _HomepageState extends State<MainPage> {
           content: const Text("Add a File"),
           actions: <Widget>[
             TextButton(
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: AppColors.SecondaryColor2),
-              ),
+              child: const Text('Cancel',
+                  style: TextStyle(color: AppColors.SecondaryColor2)),
               onPressed: () => Navigator.pop(dialogContext),
             ),
             TextButton(
-              child: const Text(
-                'Choose From Device',
-                style: TextStyle(color: AppColors.SecondaryColor2),
-              ),
+              child: const Text('Choose From Device',
+                  style: TextStyle(color: AppColors.SecondaryColor2)),
               onPressed: () async {
                 Navigator.pop(dialogContext);
                 pickFile(outerContext);
@@ -153,9 +158,7 @@ class _HomepageState extends State<MainPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _dialogBuilder(context),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         backgroundColor: AppColors.SecondaryColor2,
         foregroundColor: AppColors.PrimaryColor2,
         child: const Icon(Icons.add),
@@ -168,20 +171,28 @@ class _HomepageState extends State<MainPage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: "Library"),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: "Library",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: "Settings",
-          ),
+              icon: Icon(Icons.settings), label: "Settings"),
         ],
       ),
     );
   }
+}
+
+/// Top-level function for compute() - isolates heavy processing
+Future<String> convertToBionic(String content) async {
+  final gemini = Gemini(); // Create new Gemini instance in isolate
+  return await gemini.generateToBionicFormat(content);
+}
+
+Future<String> geminiConversion(String content) async {
+  final gemini = Gemini();
+  return await gemini.generator(content);
+}
+
+Future<String?> extractPDFContent(String filePath) {
+  final extractor = Extractor();
+  return extractor.extractPDF(filePath);
 }
