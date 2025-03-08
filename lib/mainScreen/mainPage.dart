@@ -114,6 +114,7 @@ class _HomepageState extends State<MainPage> {
           final bionicFormat = await compute(convertToBionic, geminiString);
 
           await db.insert(fileName, bionicFormat);
+
           if (!context.mounted) return;
           Navigator.pop(context); // Close loading dialog
 
@@ -180,8 +181,10 @@ class _HomepageState extends State<MainPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _dialogBuilder(context),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        onPressed: () {
+          _dialogBuilder(context);
+        },
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: AppColors.SecondaryColor2,
         foregroundColor: AppColors.PrimaryColor2,
         child: const Icon(Icons.add),
