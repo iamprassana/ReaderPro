@@ -2,6 +2,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // for compute()
+import 'package:reader_pro/database/dataBase.dart';
 import 'package:reader_pro/gemini/gemini.dart';
 import 'package:reader_pro/mainScreen/displayPage.dart';
 import 'package:reader_pro/mainScreen/homePage.dart';
@@ -18,6 +19,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _HomepageState extends State<MainPage> {
+  final DatabaseService db = DatabaseService.instance;
   int _selectedIndex = 0;
   Extractor extractor = Extractor();
 
@@ -78,38 +80,59 @@ class _HomepageState extends State<MainPage> {
     String? filePath = fp.files.single.path;
     PlatformFile file = fp.files.first;
     String fileName = file.name;
+    fileName = fileName.split('.').first.trim();
 
     if (filePath != null) {
       showLoadingDialog(context);
 
       try {
         // Extract content from PDF
-        String? content = await compute(extractPDFContent, filePath);
-        if (content == null || content.isEmpty) {
-          throw Exception("Failed to extract content from the file.");
-        }
 
-        // Convert to Bionic format - heavy processing isolated in `compute`
-        final geminiString = await compute(geminiConversion, content);
-        final bionicFormat = await compute(convertToBionic, geminiString);
-        if (!context.mounted) return;
-        Navigator.pop(context); // Close loading dialog
+        final file = await db.getSingleRecord(fileName);
 
-        // Navigate to display page
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Displaypage(
-              fileName: fileName,
-              content: bionicFormat,
+        if (file != null &&
+            file.containsKey('name') &&
+            file.containsKey('content')) {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Displaypage(
+                fileName: file['name'],
+                content: file['content'],
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          String? content = await compute(extractPDFContent, filePath);
+          if (content == null || content.isEmpty) {
+            throw Exception("Failed to extract content from the file.");
+          }
+
+          // Convert to Bionic format - heavy processing isolated in `compute`
+          final geminiString = await compute(geminiConversion, content);
+          final bionicFormat = await compute(convertToBionic, geminiString);
+
+          await db.insert(fileName, bionicFormat);
+          if (!context.mounted) return;
+          Navigator.pop(context); // Close loading dialog
+
+          // Navigate to display page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Displaypage(
+                fileName: fileName,
+                content: bionicFormat,
+              ),
+            ),
+          );
+        }
       } catch (e) {
         if (context.mounted) Navigator.pop(context);
-        print("Error extracting or processing file: $e");
+        print("Error extracting or processing file");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to process file: $e")),
+          SnackBar(content: Text("Failed to process file")),
         );
       }
     }
