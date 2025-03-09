@@ -1,7 +1,8 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class Gemini {
-  static const String apiKey = "AIzaSyBa8Rdq-3YMe7A2IjdGYSKXtWON6kWgDGs";
+  static String apiKey = dotenv.env['APIKEY'] ?? " ";
 
   final String instructionPrompt = '''
       You are given a content. Make it more readable in a way that makes most sense. Add spaces where ever needed. And give it back without any explanation.
