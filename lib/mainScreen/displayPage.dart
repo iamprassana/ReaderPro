@@ -4,6 +4,7 @@ import 'package:reader_pro/utils/colors.dart';
 class Displaypage extends StatefulWidget {
   final String fileName;
   final String content;
+
   const Displaypage({
     super.key,
     required this.fileName,
@@ -63,9 +64,33 @@ class _DisplaypageState extends State<Displaypage> {
     return spans;
   }
 
+  Widget expandedActionButton() {
+    return PopupMenuButton(
+      itemBuilder: (context) => [
+        PopupMenuItem(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          children: [
+            Icon(Icons.mic),
+          ],
+        ))
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+
+        },
+        child: const Icon(
+          Icons.more_vert,
+          color: Colors.amber,
+        ),
+      ),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(isClicked ? kToolbarHeight : 0),
         child: AnimatedOpacity(

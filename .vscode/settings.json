@@ -1,4 +1,5 @@
 {
   "java.compile.nullAnalysis.mode": "automatic",
-  "cmake.sourceDirectory": "D:/Flutter Projects/reader_pro/ReaderPro/linux"
+  "cmake.sourceDirectory": "D:/Flutter Projects/ReaderPro/linux",
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

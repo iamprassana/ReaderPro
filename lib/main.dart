@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:reader_pro/getStarted/getStarted.dart';
 import 'package:reader_pro/mainScreen/mainPage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //Initialisers.firabse();
   final SharedPreferences pref = await SharedPreferences.getInstance();
   bool isViewed = pref.getBool('isGetStarted') ?? false;
-  await dotenv.load(fileName: ".env");
   runApp(MyApp(isViewed: isViewed));
 }
 

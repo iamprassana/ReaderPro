@@ -10,9 +10,15 @@ class DatabaseService {
   Future<Database> get database async {
     if (_db != null) return _db!;
 
-    _db = await getDatabase();
-    return _db!;
+    try {
+      _db = await getDatabase();
+      return _db!;
+    } catch (e) {
+      print("Database Initialization Failed: $e");
+      throw Exception("Database Initialization Failed");
+    }
   }
+
 
   Future<Database> getDatabase() async {
     final databaseDirPath = await getDatabasesPath();
@@ -33,7 +39,7 @@ class DatabaseService {
   Future<void> insert(String name, String content) async {
     final db = await getDatabase();
 
-    db.insert(
+    await db.insert (
       'ReaderPro',
       {'name': name, 'content': content},
       conflictAlgorithm: ConflictAlgorithm.replace,

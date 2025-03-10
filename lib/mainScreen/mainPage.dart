@@ -22,7 +22,6 @@ class _HomepageState extends State<MainPage> {
   final DatabaseService db = DatabaseService.instance;
   int _selectedIndex = 0;
   Extractor extractor = Extractor();
-
   final List<Widget> pages = [
     Homepage(),
     Library(),
@@ -94,7 +93,7 @@ class _HomepageState extends State<MainPage> {
             file.containsKey('name') &&
             file.containsKey('content')) {
           Navigator.pop(context);
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => Displaypage(
@@ -104,21 +103,24 @@ class _HomepageState extends State<MainPage> {
             ),
           );
         } else {
-          String? content = await compute(extractPDFContent, filePath);
-          if (content == null || content.isEmpty) {
-            throw Exception("Failed to extract content from the file.");
-          }
+          // Replace compute with direct async calls
+          print("Extracting text");
+          String? content = await compute(extractPDFContent,filePath);
+          if (content == null) throw Exception("Failed to extract content");
+          String geminiString = await geminiConversion(content);
+          print("Got gemini string");
 
-          // Convert to Bionic format - heavy processing isolated in `compute`
-          final geminiString = await compute(geminiConversion, content);
-          final bionicFormat = await compute(convertToBionic, geminiString);
+          String bionicFormat = await convertToBionic(geminiString);
+          print("Getting bionic format");
 
+          print("Inserting into db");
           await db.insert(fileName, bionicFormat);
 
           if (!context.mounted) return;
           Navigator.pop(context); // Close loading dialog
 
           // Navigate to display page
+          print("Pushing to display page");
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -131,13 +133,55 @@ class _HomepageState extends State<MainPage> {
         }
       } catch (e) {
         if (context.mounted) Navigator.pop(context);
-        print("Error extracting or processing file");
+        print("Error extracting or processing file ${e.toString()}");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Failed to process file")),
         );
       }
     }
   }
+
+  // Future<void> pickFile(BuildContext context) async {
+  //   await db.database;
+  //   FilePickerResult? fp = await FilePicker.platform.pickFiles(
+  //     type: FileType.custom,
+  //     allowedExtensions: ['pdf', 'txt'],
+  //   );
+  //
+  //   if (fp == null) return;
+  //
+  //   String? filePath = fp.files.single.path;
+  //   String fileName = fp.files.first.name.split('.').first.trim();
+  //
+  //   if (filePath != null) {
+  //     showLoadingDialog(context);
+  //
+  //     try {
+  //       print("Extracting content...");
+  //       String? content = await compute(extractPDFContent, filePath);
+  //       if (content == null) throw Exception("Failed to extract content");
+  //
+  //       print("Calling Gemini conversion...");
+  //       final geminiString = await compute(geminiConversion, content);
+  //       final bionicFormat = await compute(convertToBionic, geminiString);
+  //
+  //       Navigator.pop(context);
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) =>
+  //               Displaypage(fileName: fileName, content: bionicFormat),
+  //         ),
+  //       );
+  //     } catch (e) {
+  //       Navigator.pop(context);
+  //       print("Error: $e");
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("Failed to get content: $e")),
+  //       );
+  //     }
+  //   }
+  // }
 
   Future<void> _dialogBuilder(BuildContext outerContext) {
     return showDialog<void>(
@@ -209,16 +253,35 @@ class _HomepageState extends State<MainPage> {
 
 /// Top-level function for compute() - isolates heavy processing
 Future<String> convertToBionic(String content) async {
-  final gemini = Gemini(); // Create new Gemini instance in isolate
-  return await gemini.generateToBionicFormat(content);
+  print("Calling bionic conversino");
+  final gemini = Gemini();
+  final String bionicFormat =
+      await gemini.generateToBionicFormat(content) ?? "Failed to process";
+  return bionicFormat;
 }
 
 Future<String> geminiConversion(String content) async {
   final gemini = Gemini();
-  return await gemini.generator(content);
+  print("Calling gemini conversion");
+  final String geminiContent = await gemini.generator(content) ?? "";
+  return geminiContent;
 }
 
-Future<String?> extractPDFContent(String filePath) {
+Future<String?> extractPDFContent(String filePath) async {
   final extractor = Extractor();
-  return extractor.extractPDF(filePath);
+  print("Calling extraction on: $filePath");
+
+  try {
+    final String? content = await extractor.extractPDF(filePath);
+    if (content == null || content.isEmpty) {
+      print("Extractor failed: Content is empty or null.");
+      return null;
+    }
+    print("Received content successfully.");
+    return content;
+  } catch (e, stacktrace) {
+    print("Error in extractPDFContent: $e");
+    print("Stacktrace: $stacktrace");
+    return null;
+  }
 }

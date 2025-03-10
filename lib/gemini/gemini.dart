@@ -1,8 +1,10 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:reader_pro/gemini/API.dart';
 
 class Gemini {
-  static String apiKey = dotenv.env['APIKEY'] ?? " ";
+  static String apiKey = "AIzaSyCQjaXhPXvd7Zxp0ahxhCA5YBCX7N72HkA";
+  //static String apiKey = GETAPI.apiKey();
 
   final String instructionPrompt = '''
       You are given a content. Make it more readable in a way that makes most sense. Add spaces where ever needed. And give it back without any explanation.
@@ -13,6 +15,8 @@ class Gemini {
       model: 'gemini-1.5-flash-latest',
       apiKey: apiKey,
     );
+    print("$apiKey");
+
 
     final content = [
       Content.text(instructionPrompt), // Prompt (system message)
@@ -30,7 +34,7 @@ class Gemini {
         print(e.toString());
         return "Please check your internet connection.";
       } else {
-        return "Unexpected error occured.";
+        return "Unexpected error occurred.";
       }
     }
   }
@@ -40,7 +44,7 @@ class Gemini {
 
     String processWord(String word) {
       if (word.length <= 2) return word;
-      final boldLength = word.length >= 6 ? 4 : 2;
+      final boldLength = word.length > 6 ? 4 : 3;
       final boldPart = word.substring(0, boldLength);
       final normalPart = word.substring(boldLength);
       return '**$boldPart**$normalPart';
