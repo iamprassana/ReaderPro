@@ -109,8 +109,8 @@ class _HomepageState extends State<MainPage> {
           print("Extracting text");
           String? content = await compute(extractPDFContent,filePath);
           if (content == null) throw Exception("Failed to extract content");
-          String geminiString = await geminiConversion(content);
 
+          String geminiString = await geminiConversion(content);
           print("Got gemini string");
 
           String bionicFormat = await convertToBionic(geminiString);

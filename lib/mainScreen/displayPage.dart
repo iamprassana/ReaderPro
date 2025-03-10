@@ -11,7 +11,6 @@ class Displaypage extends StatefulWidget {
     super.key,
     required this.fileName,
     required this.content,
-
   });
 
   @override
@@ -22,7 +21,7 @@ class _DisplaypageState extends State<Displaypage> {
   final DatabaseService db = DatabaseService.instance;
   bool isClicked = true;
   bool isVoiceActivated = false;
-  FlutterTts _flutterTts = FlutterTts();
+  final FlutterTts _flutterTts = FlutterTts();
   Map? _currentVoice;
 
   void changeAppBar() {
@@ -77,6 +76,7 @@ class _DisplaypageState extends State<Displaypage> {
 
   @override
   void dispose() {
+    print("Cancelling text to speech");
     _flutterTts.stop();
     super.dispose();
   }
@@ -89,7 +89,7 @@ class _DisplaypageState extends State<Displaypage> {
 
   void initTts() {
     _flutterTts.getVoices.then(
-      (data) {
+          (data) {
         try {
           List<Map> _voices = List<Map>.from(data);
           _voices =
@@ -106,14 +106,18 @@ class _DisplaypageState extends State<Displaypage> {
     );
   }
 
+  String extractPlainText(String content) {
+    final regex = RegExp(r'\*\*(.+?)\*\*');
+    return content.replaceAllMapped(regex, (match) => match.group(1)!);
+  }
+
   void setVoice(Map voice) {
     _flutterTts.setVoice({"name": voice["name"], "locale": voice["locale"]});
   }
 
-  void speak(bool speak, String fileName) async{
+  void speak(bool speak, String content) async {
     if (speak) {
-
-      String _content = getPlainText(widget.content);
+      String _content = getPlainText(content);
       _flutterTts.speak(_content);
     } else {
       _flutterTts.pause();
@@ -127,7 +131,7 @@ class _DisplaypageState extends State<Displaypage> {
         backgroundColor: AppColors.SecondaryColor2,
         onPressed: () {
           isVoiceActivated = !isVoiceActivated;
-          speak(isVoiceActivated, widget.fileName);
+          speak(isVoiceActivated, widget.content);
         },
         child: const Icon(
           Icons.mic,
@@ -162,8 +166,14 @@ class _DisplaypageState extends State<Displaypage> {
           minScale: 1.0,
           maxScale: 5.0,
           child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
+            height: MediaQuery
+                .of(context)
+                .size
+                .height,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
             padding: EdgeInsets.all(20),
             child: SingleChildScrollView(
               physics: BouncingScrollPhysics(
