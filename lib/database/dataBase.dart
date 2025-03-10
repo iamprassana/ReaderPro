@@ -19,7 +19,6 @@ class DatabaseService {
     }
   }
 
-
   Future<Database> getDatabase() async {
     final databaseDirPath = await getDatabasesPath();
     final databasePath = join(databaseDirPath, "reader_pro.db");
@@ -39,7 +38,7 @@ class DatabaseService {
   Future<void> insert(String name, String content) async {
     final db = await getDatabase();
 
-    await db.insert (
+    await db.insert(
       'ReaderPro',
       {'name': name, 'content': content},
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -65,5 +64,15 @@ class DatabaseService {
       return result.first;
     }
     return null;
+  }
+
+  Future<String> delete(String fileName) async {
+    final Database db = await getDatabase();
+    await db.delete(
+      "ReaderPro",
+      where: 'name = ?',
+      whereArgs: [fileName],
+    );
+    return "Removed Succesfully";
   }
 }

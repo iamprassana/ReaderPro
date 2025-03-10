@@ -1,11 +1,11 @@
 class Content {
-  String? content;
+  String? _content;
 
-  void setContent(String content) {
-    this.content = content;
+  set _contentSetter(String content) {
+    _content = content;
   }
 
-  String? getContent() {
-    return content;
+  get content {
+    return _content;
   }
 }

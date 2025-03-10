@@ -2,6 +2,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // for compute()
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:reader_pro/database/dataBase.dart';
 import 'package:reader_pro/gemini/gemini.dart';
 import 'package:reader_pro/mainScreen/displayPage.dart';
@@ -27,6 +28,7 @@ class _HomepageState extends State<MainPage> {
     Library(),
     Settings(),
   ];
+
 
   void _onItemTapped(int currentIndex) {
     setState(() {
@@ -108,6 +110,7 @@ class _HomepageState extends State<MainPage> {
           String? content = await compute(extractPDFContent,filePath);
           if (content == null) throw Exception("Failed to extract content");
           String geminiString = await geminiConversion(content);
+
           print("Got gemini string");
 
           String bionicFormat = await convertToBionic(geminiString);
@@ -115,6 +118,7 @@ class _HomepageState extends State<MainPage> {
 
           print("Inserting into db");
           await db.insert(fileName, bionicFormat);
+
 
           if (!context.mounted) return;
           Navigator.pop(context); // Close loading dialog

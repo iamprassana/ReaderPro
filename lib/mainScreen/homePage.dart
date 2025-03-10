@@ -78,8 +78,10 @@ class _HomepageState extends State<Homepage> {
                   content: records![index]['content'],
                 ),
               ),
-            ).then((_) =>
-                fetchData()); // Refresh data when returning from detail page
+            );
+            setState(() {
+              fetchData();
+            });// Refresh data when returning from detail page
           },
           child: Card(
             color: Colors.amber,
@@ -89,6 +91,13 @@ class _HomepageState extends State<Homepage> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: ListTile(
+              //Deletes the current file stored in the database.
+              trailing: IconButton(onPressed: () {
+                db.delete(records![index]['name']);
+                setState(() {
+                  fetchData();
+                });
+              }, icon: Icon(Icons.delete)),
               contentPadding:
                   const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               title: Text(

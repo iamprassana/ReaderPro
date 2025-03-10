@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:reader_pro/database/dataBase.dart';
 import 'package:reader_pro/utils/colors.dart';
 
 class Displaypage extends StatefulWidget {
@@ -9,6 +11,7 @@ class Displaypage extends StatefulWidget {
     super.key,
     required this.fileName,
     required this.content,
+
   });
 
   @override
@@ -16,7 +19,11 @@ class Displaypage extends StatefulWidget {
 }
 
 class _DisplaypageState extends State<Displaypage> {
+  final DatabaseService db = DatabaseService.instance;
   bool isClicked = true;
+  bool isVoiceActivated = false;
+  FlutterTts _flutterTts = FlutterTts();
+  Map? _currentVoice;
 
   void changeAppBar() {
     setState(() {
@@ -26,7 +33,6 @@ class _DisplaypageState extends State<Displaypage> {
 
   List<TextSpan> parseBionicText(String input) {
     final regex = RegExp(r'\*\*(.+?)\*\*');
-
     List<TextSpan> spans = [];
     int currentIndex = 0;
 
@@ -64,30 +70,67 @@ class _DisplaypageState extends State<Displaypage> {
     return spans;
   }
 
-  Widget expandedActionButton() {
-    return PopupMenuButton(
-      itemBuilder: (context) => [
-        PopupMenuItem(
-            child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          children: [
-            Icon(Icons.mic),
-          ],
-        ))
-      ],
+  String getPlainText(String input) {
+    final regex = RegExp(r'\*\*(.+?)\*\*');
+    return input.replaceAllMapped(regex, (match) => match.group(1)!);
+  }
+
+  @override
+  void dispose() {
+    _flutterTts.stop();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initTts();
+  }
+
+  void initTts() {
+    _flutterTts.getVoices.then(
+      (data) {
+        try {
+          List<Map> _voices = List<Map>.from(data);
+          _voices =
+              _voices.where((_voice) => _voice["name"].contains("en")).toList();
+
+          setState(() {
+            _currentVoice = _voices.first;
+            setVoice(_currentVoice!);
+          });
+        } catch (e) {
+          print(e);
+        }
+      },
     );
+  }
+
+  void setVoice(Map voice) {
+    _flutterTts.setVoice({"name": voice["name"], "locale": voice["locale"]});
+  }
+
+  void speak(bool speak, String fileName) async{
+    if (speak) {
+
+      String _content = getPlainText(widget.content);
+      _flutterTts.speak(_content);
+    } else {
+      _flutterTts.pause();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.SecondaryColor2,
         onPressed: () {
-
+          isVoiceActivated = !isVoiceActivated;
+          speak(isVoiceActivated, widget.fileName);
         },
         child: const Icon(
-          Icons.more_vert,
+          Icons.mic,
           color: Colors.amber,
         ),
       ),
