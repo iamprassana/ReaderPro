@@ -8,6 +8,8 @@ import 'package:reader_pro/mainScreen/mainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../utils/colors.dart';
+
 class Getstarted extends StatefulWidget {
   const Getstarted({super.key});
 
@@ -74,7 +76,7 @@ class _GetstartedState extends State<Getstarted> {
                               },
                               child: Text(
                                 "Skip",
-                                style: TextStyle(color: Colors.grey),
+                                style: TextStyle(color: AppColors.textDefault),
                               ),
                             )
                           : Text(""),
@@ -84,7 +86,7 @@ class _GetstartedState extends State<Getstarted> {
                       isLast
                           ? GestureDetector(
                               onTap: () {
-                                // setPref(); -- TODO() enable before production
+                                setPref();
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -94,7 +96,7 @@ class _GetstartedState extends State<Getstarted> {
                               },
                               child: Text(
                                 "Let's Read",
-                                style: TextStyle(fontSize: 28),
+                                style: TextStyle(fontSize: 28, color: AppColors.textDefault),
                               ),
                             )
                           : Text("")

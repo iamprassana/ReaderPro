@@ -55,10 +55,10 @@ class _HomepageState extends State<Homepage> {
       return Center(
         child: Text(
           records == null ? "No records found" : "No data available",
-          style: const TextStyle(
+          style:  TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: Colors.grey,
+            color: AppColors.textDefault,
           ),
         ),
       );
@@ -84,7 +84,7 @@ class _HomepageState extends State<Homepage> {
             });// Refresh data when returning from detail page
           },
           child: Card(
-            color: Colors.amber,
+            color: AppColors.PrimaryColor1,
             elevation: 2.0,
             shadowColor: AppColors.PrimaryColor2,
             shape: RoundedRectangleBorder(
@@ -97,16 +97,16 @@ class _HomepageState extends State<Homepage> {
                 setState(() {
                   fetchData();
                 });
-              }, icon: Icon(Icons.delete)),
+              }, icon: Icon(Icons.delete, color: Colors.white,)),
               contentPadding:
                   const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               title: Text(
                 records![index]['name'],
                 style: TextStyle(
-                  color: AppColors.SecondaryColor2,
+                  color: AppColors.textDefault,
                   fontSize: 20,
                   fontFamily: 'Poppins',
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.normal,
                 ),
               ),
             ),

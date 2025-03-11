@@ -29,7 +29,6 @@ class _HomepageState extends State<MainPage> {
     Settings(),
   ];
 
-
   void _onItemTapped(int currentIndex) {
     setState(() {
       _selectedIndex = currentIndex;
@@ -52,13 +51,13 @@ class _HomepageState extends State<MainPage> {
                 children: [
                   const CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColors.SecondaryColor2),
+                        Colors.white),
                     strokeWidth: 5.0,
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     "Please Wait While We Load The Content",
-                    style: TextStyle(color: AppColors.SecondaryColor2),
+                    style: TextStyle(color: AppColors.textDefault),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -107,7 +106,7 @@ class _HomepageState extends State<MainPage> {
         } else {
           // Replace compute with direct async calls
           print("Extracting text");
-          String? content = await compute(extractPDFContent,filePath);
+          String? content = await compute(extractPDFContent, filePath);
           if (content == null) throw Exception("Failed to extract content");
 
           String geminiString = await geminiConversion(content);
@@ -118,7 +117,6 @@ class _HomepageState extends State<MainPage> {
 
           print("Inserting into db");
           await db.insert(fileName, bionicFormat);
-
 
           if (!context.mounted) return;
           Navigator.pop(context); // Close loading dialog
@@ -196,12 +194,12 @@ class _HomepageState extends State<MainPage> {
           content: const Text("Add a File"),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel',
+              child:  Text('Cancel',
                   style: TextStyle(color: AppColors.SecondaryColor2)),
               onPressed: () => Navigator.pop(dialogContext),
             ),
             TextButton(
-              child: const Text('Choose From Device',
+              child: Text('Choose From Device',
                   style: TextStyle(color: AppColors.SecondaryColor2)),
               onPressed: () async {
                 Navigator.pop(dialogContext);
@@ -224,7 +222,12 @@ class _HomepageState extends State<MainPage> {
         shadowColor: AppColors.PrimaryColor2,
         title: const Text(
           "Reader Pro",
-          style: TextStyle(fontFamily: 'Poppins', fontSize: 24),
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 30,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
@@ -233,15 +236,18 @@ class _HomepageState extends State<MainPage> {
           _dialogBuilder(context);
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: AppColors.SecondaryColor2,
+        backgroundColor: AppColors.PrimaryColor1,
         foregroundColor: AppColors.PrimaryColor2,
         child: const Icon(Icons.add),
       ),
       body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        iconSize: 22,
+        selectedFontSize: 19,
+        unselectedFontSize: 19,
         backgroundColor: AppColors.PrimaryColor1,
         elevation: 10,
-        selectedItemColor: AppColors.SecondaryColor2,
+        selectedItemColor: Colors.white,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
@@ -257,7 +263,7 @@ class _HomepageState extends State<MainPage> {
 
 /// Top-level function for compute() - isolates heavy processing
 Future<String> convertToBionic(String content) async {
-  print("Calling bionic conversino");
+  print("Calling bionic conversion");
   final gemini = Gemini();
   final String bionicFormat =
       await gemini.generateToBionicFormat(content) ?? "Failed to process";

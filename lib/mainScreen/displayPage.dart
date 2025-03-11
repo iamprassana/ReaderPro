@@ -40,14 +40,18 @@ class _DisplaypageState extends State<Displaypage> {
       if (match.start > currentIndex) {
         spans.add(TextSpan(
           text: input.substring(currentIndex, match.start),
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 17,
+              color: AppColors.SecondaryColor2),
         ));
       }
 
       // Bold text inside ** **
       spans.add(TextSpan(
         text: match.group(1),
-        style: const TextStyle(
+        style: TextStyle(
+          color: AppColors.SecondaryColor2,
           fontWeight: FontWeight.bold,
           fontFamily: 'Poppins',
           fontSize: 17,
@@ -62,7 +66,10 @@ class _DisplaypageState extends State<Displaypage> {
     if (currentIndex < input.length) {
       spans.add(TextSpan(
         text: input.substring(currentIndex),
-        style: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
+        style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 17,
+            color: AppColors.SecondaryColor2),
       ));
     }
 
@@ -89,7 +96,7 @@ class _DisplaypageState extends State<Displaypage> {
 
   void initTts() {
     _flutterTts.getVoices.then(
-          (data) {
+      (data) {
         try {
           List<Map> _voices = List<Map>.from(data);
           _voices =
@@ -124,20 +131,67 @@ class _DisplaypageState extends State<Displaypage> {
     }
   }
 
+  String _selectedOption = "More";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.SecondaryColor2,
+        backgroundColor: AppColors.PrimaryColor1,
         onPressed: () {
-          isVoiceActivated = !isVoiceActivated;
-          speak(isVoiceActivated, widget.content);
+          RenderBox button = context.findRenderObject() as RenderBox;
+          Offset position = button.localToGlobal(Offset.zero); // Get FAB position
+          double left = position.dx + 280;
+          double top = position.dy + 575; // Adjust to show menu above FAB
+
+          showMenu(
+            context: context,
+            color: AppColors.PrimaryColor1, // Background color of menu
+            position: RelativeRect.fromLTRB(left, top, left + 50, top + 50),
+            items: [
+              PopupMenuItem(
+                value: "Mic",
+                child: ListTile(
+                  leading: Icon(Icons.mic, color: AppColors.textDefault),
+                  title: Text("Mic", style: TextStyle(color: AppColors.textDefault)),
+                ),
+              ),
+              PopupMenuItem(
+                value: "Quiz",
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Coming Soon")),
+                  );
+                },
+                child: ListTile(
+                  leading: Icon(Icons.quiz, color: AppColors.textDefault),
+                  title: Text("Quiz", style: TextStyle(color: AppColors.textDefault)),
+                ),
+              ),
+              PopupMenuItem(
+                value: "Timer",
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Coming Soon")),
+                  );
+                },
+                child: ListTile(
+                  leading: Icon(Icons.timer, color: AppColors.textDefault),
+                  title: Text("Timer", style: TextStyle(color: AppColors.textDefault)),
+                ),
+              ),
+            ],
+          ).then((value) {
+            if (value == "Mic") {
+              speak(true, widget.content);
+            } else {
+              _flutterTts.pause();
+            }
+          });
         },
-        child: const Icon(
-          Icons.mic,
-          color: Colors.amber,
-        ),
+        child: Icon(Icons.more_vert, color: Colors.white),
       ),
+
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(isClicked ? kToolbarHeight : 0),
         child: AnimatedOpacity(
@@ -145,9 +199,21 @@ class _DisplaypageState extends State<Displaypage> {
           curve: Curves.easeOut,
           duration: Duration(milliseconds: 1000),
           child: AppBar(
+            leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textDefault,
+              ),
+            ),
             title: Text(
               widget.fileName,
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 26),
+              style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 26,
+                  color: AppColors.textDefault),
               textAlign: TextAlign.justify,
             ),
             automaticallyImplyLeading: true,
@@ -166,14 +232,8 @@ class _DisplaypageState extends State<Displaypage> {
           minScale: 1.0,
           maxScale: 5.0,
           child: Container(
-            height: MediaQuery
-                .of(context)
-                .size
-                .height,
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
             padding: EdgeInsets.all(20),
             child: SingleChildScrollView(
               physics: BouncingScrollPhysics(
@@ -182,8 +242,8 @@ class _DisplaypageState extends State<Displaypage> {
               scrollDirection: Axis.vertical,
               child: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    color: Colors.black,
+                  style: TextStyle(
+                    color: AppColors.SecondaryColor2,
                     fontFamily: 'Poppins',
                     fontSize: 17,
                   ),
@@ -197,3 +257,5 @@ class _DisplaypageState extends State<Displaypage> {
     );
   }
 }
+
+

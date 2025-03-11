@@ -57,7 +57,7 @@ class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
     // Animation Controller
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
     )..repeat(reverse: false); // Loop animation
 
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -106,7 +106,7 @@ class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
                             fontSize: 30,
                             color: AppColors.SecondaryColor2,
                           ),
-                          speed: const Duration(milliseconds: 80),
+                          speed: const Duration(milliseconds: 100),
                         ),
                       ],
                       totalRepeatCount: 1,
