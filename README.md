@@ -1,4 +1,6 @@
 # Reader Pro
+
+# Submission for GDG on Campus Solution Challenge 
 Reader Pro is a mobile application designed to assist individuals who face challenges with reading and concentration.
 
 ✨ Features
