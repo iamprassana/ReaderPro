@@ -4,7 +4,6 @@ import 'package:reader_pro/gemini/API.dart';
 
 class Gemini {
   static String apiKey = "AIzaSyCQjaXhPXvd7Zxp0ahxhCA5YBCX7N72HkA";
-  //static String apiKey = GETAPI.apiKey();
 
   final String instructionPrompt = '''
       You are given a content. Make it more readable in a way that makes most sense. Add spaces where ever needed. And give it back without any explanation.
